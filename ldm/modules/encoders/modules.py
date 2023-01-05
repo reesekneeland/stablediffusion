@@ -166,17 +166,32 @@ class FrozenOpenCLIPEmbedder(AbstractEncoder):
             param.requires_grad = False
 
     def forward(self, text):
+        # print("text", text)
+        # text = ["a snake in the desert", "a snake in the desert", "a snake in the desert"]
         tokens = open_clip.tokenize(text)
         z = self.encode_with_transformer(tokens.to(self.device))
+        print("Z SHAPE", z.shape)
         return z
 
     def encode_with_transformer(self, text):
+        print("WE ARE ENCODING WITH A TRANSFORMER")
+        print(text.shape)
+        y = self.model.encode_text(text)
+        print("Y SHAPE", y.shape)
         x = self.model.token_embedding(text)  # [batch_size, n_ctx, d_model]
+        print("1", x.shape)
         x = x + self.model.positional_embedding
+        print("2", x.shape)
         x = x.permute(1, 0, 2)  # NLD -> LND
+        print("3", x.shape)
         x = self.text_transformer_forward(x, attn_mask=self.model.attn_mask)
+        print("4", x.shape)
         x = x.permute(1, 0, 2)  # LND -> NLD
+        print("5", x.shape)
         x = self.model.ln_final(x)
+        print("6", x.shape)
+        # x = x[torch.arange(x.shape[0]), text.argmax(dim=-1)]
+        # print("7", x.shape)
         return x
 
     def text_transformer_forward(self, x: torch.Tensor, attn_mask = None):

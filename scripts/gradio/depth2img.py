@@ -70,7 +70,9 @@ def paint(sampler, image, prompt, t_enc, seed, scale, num_samples=1, callback=No
             image, txt=prompt, device=device, num_samples=num_samples)
         z = model.get_first_stage_encoding(model.encode_first_stage(
             batch[model.first_stage_key]))  # move to latent space
+        # print("batch[txt]", batch["txt"])
         c = model.cond_stage_model.encode(batch["txt"])
+        # print("c", c.shape, c)
         c_cat = list()
         for ck in model.concat_keys:
             cc = batch[ck]

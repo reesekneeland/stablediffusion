@@ -1,4 +1,5 @@
 import argparse, os
+os.environ['CUDA_VISIBLE_DEVICES'] = "2,3"
 import cv2
 import torch
 import numpy as np
@@ -243,7 +244,9 @@ def main(opt):
                         uc = model.get_learned_conditioning(batch_size * [""])
                     if isinstance(prompts, tuple):
                         prompts = list(prompts)
+                    print("prompts", prompts)
                     c = model.get_learned_conditioning(prompts)
+                    print("c", c.shape, c)
                     shape = [opt.C, opt.H // opt.f, opt.W // opt.f]
                     samples, _ = sampler.sample(S=opt.steps,
                                                      conditioning=c,

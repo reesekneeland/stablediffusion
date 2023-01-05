@@ -1,6 +1,7 @@
 """make variations of input image"""
 
 import argparse, os
+os.environ['CUDA_VISIBLE_DEVICES'] = "2,3"
 import PIL
 import torch
 import numpy as np
@@ -242,9 +243,10 @@ def main():
                         if isinstance(prompts, tuple):
                             prompts = list(prompts)
                         c = model.get_learned_conditioning(prompts)
-
+                        
                         # encode (scaled latent)
                         z_enc = sampler.stochastic_encode(init_latent, torch.tensor([t_enc] * batch_size).to(device))
+                        print("vector shape", c.shape, z_enc.shape, t_enc)
                         # decode it
                         samples = sampler.decode(z_enc, c, t_enc, unconditional_guidance_scale=opt.scale,
                                                  unconditional_conditioning=uc, )
