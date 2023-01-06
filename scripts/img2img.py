@@ -127,7 +127,7 @@ def main():
     parser.add_argument(
         "--n_samples",
         type=int,
-        default=2,
+        default=1,
         help="how many samples to produce for each given prompt. A.k.a batch size",
     )
 
@@ -222,8 +222,8 @@ def main():
     assert os.path.isfile(opt.init_img)
     init_image = load_img(opt.init_img).to(device)
     init_image = repeat(init_image, '1 ... -> b ...', b=batch_size)
-    init_latent = model.get_first_stage_encoding(model.encode_first_stage(init_image))  # move to latent space
-
+    # init_latent = model.get_first_stage_encoding(model.encode_first_stage(init_image))  # move to latent space
+    init_latent = torch.load("/home/naxos2-raid25/kneel027/home/kneel027/nsd_local/nsddata_stimuli/tensors/z/5.pt").to(device)
     sampler.make_schedule(ddim_num_steps=opt.ddim_steps, ddim_eta=opt.ddim_eta, verbose=False)
 
     assert 0. <= opt.strength <= 1., 'can only work with strength in [0.0, 1.0]'
@@ -242,11 +242,10 @@ def main():
                             uc = model.get_learned_conditioning(batch_size * [""])
                         if isinstance(prompts, tuple):
                             prompts = list(prompts)
-                        c = model.get_learned_conditioning(prompts)
-                        
+                        # c = model.get_learned_conditioning(prompts)
+                        c = torch.load("/home/naxos2-raid25/kneel027/home/kneel027/nsd_local/nsddata_stimuli/tensors/c/5.pt").to(device)
                         # encode (scaled latent)
                         z_enc = sampler.stochastic_encode(init_latent, torch.tensor([t_enc] * batch_size).to(device))
-                        print("vector shape", c.shape, z_enc.shape, t_enc)
                         # decode it
                         samples = sampler.decode(z_enc, c, t_enc, unconditional_guidance_scale=opt.scale,
                                                  unconditional_conditioning=uc, )
